@@ -1,0 +1,92 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+<#+
+    public class ServiceFunction
+    {
+        public string FunctionName;
+        public string RequestType;
+        public string ResponseType;
+
+        public string RequestParameter(bool comma)
+        {
+            return NoRequestType ? 
+                string.Empty :
+                RequestType + " request" + (comma ? "," : null);
+        }
+
+		public string RequestArgument(bool comma)
+        {
+            return NoRequestType ? 
+                string.Empty :
+                "request" + (comma ? "," : null);
+        }
+		
+        public string ResponseActionParameter
+        {
+            get
+            {
+                return NoResponseType ? 
+                    string.Empty : 
+                    String.Format("<{0}>", ResponseType);
+            }
+        }
+        
+        public string RequestActionParameter
+        {
+            get
+            {
+                return NoRequestType ? 
+                    string.Empty : 
+                    String.Format("<{0}>", RequestType);
+            }
+        }
+        
+        public bool NoResponseType { get { return string.IsNullOrEmpty(ResponseType) || ResponseType == "void"; } }
+        public bool NoRequestType { get { return string.IsNullOrEmpty(RequestType) || RequestType == "void"; } }
+    }
+
+    public class Callbacks : System.Collections.IEnumerable
+    {
+        public void Add(string functionName, string requestType)
+        {
+            Functions.Add(new ServiceFunction 
+                { FunctionName = functionName, RequestType = requestType, ResponseType = "void" });
+        }
+
+        public List<ServiceFunction> Functions = new List<ServiceFunction>();
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    // This class makes the T4 template code nice and readable by allowing the use of C#'s 
+    // add based object initialization.
+    public class WebService : System.Collections.IEnumerable
+    {
+        public void Add(string functionName)
+        {
+            Functions.Add(new ServiceFunction { FunctionName = functionName });
+        }       
+		// Use "void" as the responseType for a void function.
+        public void Add(string functionName, string responseType)
+        {
+            Functions.Add(new ServiceFunction { FunctionName = functionName, ResponseType = responseType });
+        }       
+        public void Add(string functionName, string requestType, string responseType)
+        {
+            Functions.Add(new ServiceFunction 
+                { FunctionName = functionName, RequestType = requestType, ResponseType = responseType });
+        }
+
+        public List<ServiceFunction> Functions = new List<ServiceFunction>();
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+    }
+#>
